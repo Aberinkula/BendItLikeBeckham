@@ -42,6 +42,8 @@ public:
 
 	void OnFreeplayLoad(std::string eventName);
 	void OnFreeplayDestroy(std::string eventName);
+	void OnExhibitionLoad(std::string eventName);
+	void OnExhibitionDestroy(std::string eventName);
 	void OnBallTick(ServerWrapper ball, void* params, std::string eventName);
 	void Render(CanvasWrapper canvas);
 };

@@ -8,7 +8,7 @@
 #include "bakkesmod/wrappers/arraywrapper.h"
 #include <sstream>
 
-BAKKESMOD_PLUGIN(BendItPlugin, "Bend It Like Beckham  Questions/Bugs?  Go to BakkesMod discord or DM http://twitter.com/FrancesElMute", "1.04", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
+BAKKESMOD_PLUGIN(BendItPlugin, "Bend It Like Beckham  Questions/Bugs?  Go to BakkesMod discord or DM http://twitter.com/FrancesElMute", "1.05", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
 
 BendItPlugin::BendItPlugin()
 {
@@ -40,14 +40,36 @@ void BendItPlugin::onLoad()
 	forceMode = make_shared<int>(0);
 	cvarManager->registerCvar("sv_soccar_forcemode", "0", "Force mode to apply", true, true, 0, true, 6).bindTo(forceMode);
 
+	
 	gameWrapper->HookEvent("Function TAGame.GameEvent_Tutorial_TA.OnInit", bind(&BendItPlugin::OnFreeplayLoad, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_Tutorial_TA.Destroyed", bind(&BendItPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TrainingEditor_TA.StartPlayTest", bind(&BendItPlugin::OnFreeplayLoad, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TrainingEditor_TA.Destroyed", bind(&BendItPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
+	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.OnInit", bind(&BendItPlugin::OnExhibitionLoad, this, std::placeholders::_1));
+	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.Destroyed", bind(&BendItPlugin::OnExhibitionDestroy, this, std::placeholders::_1));
+
 
 	OnFreeplayLoad("init");
 }
+void BendItPlugin::OnExhibitionLoad(std::string eventName)
+{
+	cvarManager->log(std::string("OnExhibitionLoad") + eventName);
+	if (*curveOn) {
 
+		gameWrapper->RegisterDrawable(std::bind(&BendItPlugin::Render, this, std::placeholders::_1));
+		gameWrapper->HookEventWithCaller<ServerWrapper>("Function GameEvent_Soccar_TA.Active.Tick", std::bind(&BendItPlugin::OnBallTick, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	}
+	else {
+		gameWrapper->UnregisterDrawables();
+		gameWrapper->UnhookEvent("Function GameEvent_Soccar_TA.Active.Tick");
+	}
+}
+
+void BendItPlugin::OnExhibitionDestroy(std::string eventName)
+{
+		gameWrapper->UnregisterDrawables();
+		gameWrapper->UnhookEvent("Function GameEvent_Soccar_TA.Active.Tick");
+}
 void BendItPlugin::OnFreeplayLoad(std::string eventName)
 {
 
