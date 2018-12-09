@@ -136,7 +136,7 @@ void BendItPlugin::OnBallTick(ServerWrapper server, void * params, std::string e
 	if (v.Z = 0) {  // ball is on ground, horizontal magnus if setting on
 		a.X = 0.0f;
 		a.Y = 0.0f;
-		if (!groundTurn)
+		if (!(*groundTurn))
 			a.Z = 0.0f;
 	}
 
