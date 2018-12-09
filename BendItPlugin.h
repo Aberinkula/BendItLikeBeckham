@@ -32,6 +32,9 @@ private:
 	std::shared_ptr<float> dragCoeff, liftCoeff;
 	std::shared_ptr<bool> lineOn;
 	std::shared_ptr<int> forceMode;
+	std::shared_ptr<float> zMultiplier;
+	std::shared_ptr<float> maxSpin;
+	std::shared_ptr<bool> groundTurn;
 	LineColor colors[2] = { { 0, 255, 0, 240 },{ 75, 0, 130, 240 } };
 	int count;
 public:
@@ -41,6 +44,7 @@ public:
 	virtual void onUnload();
 
 	void OnFreeplayLoad(std::string eventName);
+	void OnMaxSpinChange(std::string eventName);
 	void OnFreeplayDestroy(std::string eventName);
 	void OnExhibitionLoad(std::string eventName);
 	void OnExhibitionDestroy(std::string eventName);

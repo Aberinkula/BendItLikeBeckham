@@ -31,6 +31,16 @@ void BendItPlugin::onLoad()
 	liftCoeff = make_shared<float>(1.0);
 	cvarManager->registerCvar("sv_soccar_lift_coefficient", "1.0", "Lift coefficient for ball", true, true, 0, true, 100).bindTo(liftCoeff);
 
+	zMultiplier = make_shared<float>(1.0);
+	cvarManager->registerCvar("sv_soccar_lift_zmod", "1.0", "Lift multiplier in Z direction.", true, true, 0, true, 100).bindTo(zMultiplier);
+
+	maxSpin = make_shared<float>(1.0);
+	cvarManager->registerCvar("sv_soccar_maxspin", "1.0", "Multiplier of the maximum ball spin.", true, true, 0, true, 10).bindTo(maxSpin);
+	cvarManager->getCvar("sv_soccar_maxspin").addOnValueChanged(std::bind(&BendItPlugin::OnMaxSpinChange, this, std::placeholders::_1));
+
+	groundTurn = make_shared<bool>(true);
+	cvarManager->registerCvar("sv_soccar_lift_ground", "0", "Apply horizontal magnus effect while ball is on the ground", true, true, 0, true, 1).bindTo(groundTurn);
+
 	lineOn = make_shared<bool>(true);
 	cvarManager->registerCvar("sv_soccar_draw_magnus_force", "0", "draw the magnus force applied to the ball", true, true, 0, true, 1).bindTo(lineOn);
 
@@ -47,6 +57,7 @@ void BendItPlugin::onLoad()
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TrainingEditor_TA.Destroyed", bind(&BendItPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.OnInit", bind(&BendItPlugin::OnExhibitionLoad, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.Destroyed", bind(&BendItPlugin::OnExhibitionDestroy, this, std::placeholders::_1));
+	gameWrapper->HookEventPost("Function TAGame.Ball_TA.EventGameEventSet", bind(&BendItPlugin::OnMaxSpinChange, this, std::placeholders::_1)); // not sure if this is the best function but it seems to work
 
 
 	OnFreeplayLoad("init");
@@ -55,7 +66,6 @@ void BendItPlugin::OnExhibitionLoad(std::string eventName)
 {
 	cvarManager->log(std::string("OnExhibitionLoad") + eventName);
 	if (*curveOn) {
-
 		gameWrapper->RegisterDrawable(std::bind(&BendItPlugin::Render, this, std::placeholders::_1));
 		gameWrapper->HookEventWithCaller<ServerWrapper>("Function GameEvent_Soccar_TA.Active.Tick", std::bind(&BendItPlugin::OnBallTick, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	}
@@ -75,7 +85,6 @@ void BendItPlugin::OnFreeplayLoad(std::string eventName)
 
 	cvarManager->log(std::string("OnFreeplayLoad") + eventName);
 	if (*curveOn) {
-
 		gameWrapper->RegisterDrawable(std::bind(&BendItPlugin::Render, this, std::placeholders::_1));
 		gameWrapper->HookEventWithCaller<ServerWrapper>("Function GameEvent_Tutorial_FreePlay_TA.Active.Tick", std::bind(&BendItPlugin::OnBallTick, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	}
@@ -83,6 +92,21 @@ void BendItPlugin::OnFreeplayLoad(std::string eventName)
 		gameWrapper->UnregisterDrawables();
 		gameWrapper->UnhookEvent("Function GameEvent_Tutorial_FreePlay_TA.Active.Tick");
 	}
+}
+
+void BendItPlugin::OnMaxSpinChange(std::string eventName)
+{
+	if (!gameWrapper->IsInGame()) {
+		return;
+	}
+	ServerWrapper server = gameWrapper->GetGameEventAsServer();
+	if (server.IsNull())
+		return;
+	BallWrapper ballWrapper = server.GetBall();
+	if (ballWrapper.IsNull())
+		return;
+	ballWrapper.SetMaxAngularSpeed2((*maxSpin)*6.0f);
+	//cvarManager->log(std::string("Reapplied max angular velocity."));
 }
 
 void BendItPlugin::OnFreeplayDestroy(std::string eventName)
@@ -99,13 +123,21 @@ void BendItPlugin::OnBallTick(ServerWrapper server, void * params, std::string e
 	BallWrapper ballWrapper = server.GetBall();
 	if (ballWrapper.IsNull())
 		return;
-	Rotator rotator = ballWrapper.GetRotation();
 	Vector a = ballWrapper.GetAngularVelocity();
 	Vector v = ballWrapper.GetVelocity();
 
 	if (*debug) {
 		a.Z = 500.0f;
 		ballWrapper.SetAngularVelocity(a, false);	 
+	}
+
+	a.X *= (*zMultiplier); // pretend non-horizontal spin is weaker with below 1 zMultiplier
+	a.Y *= (*zMultiplier);
+	if (v.Z = 0) {  // ball is on ground, horizontal magnus if setting on
+		a.X = 0.0f;
+		a.Y = 0.0f;
+		if (!groundTurn)
+			a.Z = 0.0f;
 	}
 
 	Vector magnusEffect = Vector::cross(v, a) * -1.0f;
@@ -115,12 +147,12 @@ void BendItPlugin::OnBallTick(ServerWrapper server, void * params, std::string e
 	magnusEffect.Y *= (*liftCoeff);
 
 	lastAppliedMagnusEffect = magnusEffect;
+	ballWrapper.AddForce(magnusEffect, (char)(*forceMode));
 
 	float drag = -(*dragCoeff * v.magnitude());
 	Vector dragEffect = Vector(v.X * drag, v.Y * drag, v.Z*drag);
-	if (v.Z != 0) {  // ball is off ground, apply magnus effect
+	if (v.Z != 0) {  // ball is off ground, apply drag
 		ballWrapper.AddForce(dragEffect, (char)(*forceMode));
-		ballWrapper.AddForce(magnusEffect, (char)(*forceMode));
 	}
 }
 
