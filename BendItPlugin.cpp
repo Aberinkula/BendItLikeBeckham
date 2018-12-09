@@ -140,16 +140,21 @@ void BendItPlugin::OnBallTick(ServerWrapper server, void * params, std::string e
 			a.Z = 0.0f;
 	}
 
-	Vector magnusEffect = Vector::cross(v, a) * -1.0f;
+	// dt since last tick in seconds
+	float dt = *((float*)params);
 
-	magnusEffect.Z *= (*liftCoeff);
-	magnusEffect.X *= (*liftCoeff);
-	magnusEffect.Y *= (*liftCoeff);
+	// normalize scale factor s.t. 120 fps gives scale 1
+	float scale = dt * 120.0f;
+
+	Vector magnusEffect = Vector::cross(v, a) * -1.0f;	
+
+	magnusEffect.Z *= (*liftCoeff) * scale;
+	magnusEffect.X *= (*liftCoeff) * scale;
+	magnusEffect.Y *= (*liftCoeff) * scale;
 
 	lastAppliedMagnusEffect = magnusEffect;
-	ballWrapper.AddForce(magnusEffect, (char)(*forceMode));
 
-	float drag = -(*dragCoeff * v.magnitude());
+	float drag = -(*dragCoeff * v.magnitude()) * scale;
 	Vector dragEffect = Vector(v.X * drag, v.Y * drag, v.Z*drag);
 	if (v.Z != 0) {  // ball is off ground, apply drag
 		ballWrapper.AddForce(dragEffect, (char)(*forceMode));
