@@ -133,7 +133,7 @@ void BendItPlugin::OnBallTick(ServerWrapper server, void * params, std::string e
 
 	a.X *= (*zMultiplier); // pretend non-horizontal spin is weaker with below 1 zMultiplier
 	a.Y *= (*zMultiplier);
-	if (v.Z = 0) {  // ball is on ground, horizontal magnus if setting on
+	if (v.Z == 0.0f) {  // ball is on ground, horizontal magnus if setting on
 		a.X = 0.0f;
 		a.Y = 0.0f;
 		if (!(*groundTurn))
