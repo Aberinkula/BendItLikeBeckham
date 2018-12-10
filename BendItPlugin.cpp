@@ -153,6 +153,7 @@ void BendItPlugin::OnBallTick(ServerWrapper server, void * params, std::string e
 	magnusEffect.Y *= (*liftCoeff) * scale;
 
 	lastAppliedMagnusEffect = magnusEffect;
+	ballWrapper.AddForce(magnusEffect, (char)(*forceMode));
 
 	float drag = -(*dragCoeff * v.magnitude()) * scale;
 	Vector dragEffect = Vector(v.X * drag, v.Y * drag, v.Z*drag);
