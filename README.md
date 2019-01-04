@@ -25,13 +25,14 @@ Copy benditplugin.set to <steam_directory>/steamapps/common/rocketleague/Binarie
 **sv_soccar_magnus_debug 0|1** -- when activated, autospins the ball very fast, to ensure you see a visible effect on the ball
 
 **sv_soccar_forcemode - 0|6** -- specify the method of adding force to the ball
-    Force                                    = 0,
-    Impulse                                  = 1,
-    Velocity                                 = 2,
-    SmoothImpulse                            = 3,
-    SmoothVelocity                           = 4,
-    Acceleration                             = 5,
-    MAX                                      = 6
+    
+    Force               = 0,
+    Impulse             = 1,
+    Velocity            = 2,
+    SmoothImpulse       = 3,
+    SmoothVelocity      = 4,
+    Acceleration        = 5,
+    MAX                 = 6
 
 
 - when compiling the code; check and modify the include directories to point to the BakkesMod sdk, and the post-build step as well.
