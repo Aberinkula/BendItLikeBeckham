@@ -8,7 +8,7 @@
 #include "bakkesmod/wrappers/arraywrapper.h"
 #include <sstream>
 
-BAKKESMOD_PLUGIN(BendItPlugin, "Bend It Like Beckham  Questions/Bugs?  Go to BakkesMod discord or DM http://twitter.com/FrancesElMute", "1.05", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
+BAKKESMOD_PLUGIN(BendItPlugin, "Bend It Like Beckham  Questions/Bugs?  Go to BakkesMod discord or DM http://twitter.com/FrancesElMute", "1.06", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
 
 BendItPlugin::BendItPlugin()
 {
