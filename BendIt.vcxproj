@@ -91,7 +91,7 @@
       <AdditionalDependencies>C:\Program Files (x86)\Steam\steamapps\common\rocketleague\Binaries\Win32\bakkesmod\bakkesmodsdk\lib\bakkesmod.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>f:\python\Python37-32\python "C:\Program Files (x86)\Steam\steamapps\common\rocketleague\Binaries\Win32\bakkesmod\bakkesmodsdk\bakkes_patchplugin.py" "$(TargetPath)"</Command>
+      <Command>REM f:\python\Python37-32\python "C:\Program Files (x86)\Steam\steamapps\common\rocketleague\Binaries\Win32\bakkesmod\bakkesmodsdk\bakkes_patchplugin_phil.py" "$(TargetPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

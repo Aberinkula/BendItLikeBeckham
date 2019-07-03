@@ -86,11 +86,11 @@ void BendItPlugin::OnFreeplayLoad(std::string eventName)
 	cvarManager->log(std::string("OnFreeplayLoad") + eventName);
 	if (*curveOn) {
 		gameWrapper->RegisterDrawable(std::bind(&BendItPlugin::Render, this, std::placeholders::_1));
-		gameWrapper->HookEventWithCaller<ServerWrapper>("Function GameEvent_Tutorial_FreePlay_TA.Active.Tick", std::bind(&BendItPlugin::OnBallTick, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+		gameWrapper->HookEventWithCaller<ServerWrapper>("Function GameEvent_Soccar_TA.Active.Tick", std::bind(&BendItPlugin::OnBallTick, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	}
 	else {
 		gameWrapper->UnregisterDrawables();
-		gameWrapper->UnhookEvent("Function GameEvent_Tutorial_FreePlay_TA.Active.Tick");
+		gameWrapper->UnhookEvent("Function GameEvent_Soccar_TA.Active.Tick");
 	}
 }
 
@@ -112,7 +112,7 @@ void BendItPlugin::OnMaxSpinChange(std::string eventName)
 void BendItPlugin::OnFreeplayDestroy(std::string eventName)
 {
 	gameWrapper->UnregisterDrawables();
-	gameWrapper->UnhookEvent("Function GameEvent_Tutorial_FreePlay_TA.Active.Tick");
+	gameWrapper->UnhookEvent("Function GameEvent_Soccar_TA.Active.Tick");
 }
 
 void BendItPlugin::OnBallTick(ServerWrapper server, void * params, std::string eventName)
